@@ -6,7 +6,20 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
-from config_production import ProductionConfig
+import os
+
+class ProductionConfig:
+    SECRET_KEY = os.getenv("SECRET_KEY", "apollo-secret")
+    _db_url = os.getenv("DATABASE_URL", "")
+    SQLALCHEMY_DATABASE_URI = _db_url.replace("postgres://", "postgresql://") if _db_url else None
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SERIAL_PORT = None
+    SERIAL_BAUD = 115200
+    TIMEZONE = "Asia/Beirut"
+    LOW_PILL_THRESHOLD = 5
+    LOW_WATER_THRESHOLD = 20
+    LOW_BATTERY_THRESHOLD = 30
+    CRITICAL_BATTERY = 20
 
 db            = SQLAlchemy()
 migrate       = Migrate()
