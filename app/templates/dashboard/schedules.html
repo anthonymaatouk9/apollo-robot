@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Schedules{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Schedules</h1>
+  <button class="btn btn-primary" onclick="showForm()">+ New schedule</button>
+</div>
+
+<div id="form-box" class="card" style="display:none;margin-bottom:16px;border-left:3px solid var(--primary)">
+  <div style="font-size:14px;font-weight:500;margin-bottom:16px;color:var(--primary-dark)">Create medication schedule</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div>
+      <label>Patient</label>
+      <select id="f-patient"></select>
+    </div>
+    <div>
+      <label>Tube (medication)</label>
+      <select id="f-tube"></select>
+    </div>
+    <div>
+      <label>Date and time (Lebanon time)</label>
+      <input type="datetime-local" id="f-datetime">
+    </div>
+    <div>
+      <label>Notes (optional)</label>
+      <input id="f-notes" placeholder="e.g. Take with food">
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="createSchedule()">Save & queue mission</button>
+    <button class="btn" onclick="document.getElementById('form-box').style.display='none'">Cancel</button>
+  </div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden">
+  <table>
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Medication</th>
+        <th>Scheduled at</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="sch-tbody">
+      <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- QR Modal -->
+<div id="qr-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:12px;padding:28px;text-align:center;max-width:320px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="font-size:16px;font-weight:500;margin-bottom:4px" id="qr-patient-name"></div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px" id="qr-schedule-id"></div>
+    <img id="qr-img" style="width:200px;height:200px;border:0.5px solid var(--border);border-radius:8px">
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
+      <a id="qr-download" download style="padding:7px 16px;background:var(--primary);color:white;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">Download</a>
+      <button class="btn btn-sm" onclick="closeQR()">Close</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+async function showForm() {
+  const [patients, tubes] = await Promise.all([api('GET','/patients/'), api('GET','/tubes/')]);
+  document.getElementById('f-patient').innerHTML = patients.map(p=>`<option value="${p.id}">${p.name} — ${p.room}</option>`).join('');
+  document.getElementById('f-tube').innerHTML    = tubes.map(t=>`<option value="${t.id}">Tube ${t.id} — ${t.medication||'Empty'} (${t.stock} left)</option>`).join('');
+  document.getElementById('form-box').style.display='block';
+  window.scrollTo(0,0);
+}
+
+async function load() {
+  const schedules = await api('GET','/schedules/');
+  document.getElementById('sch-tbody').innerHTML = schedules.length ? schedules.map(s=>`
+    <tr>
+      <td style="font-weight:500">${s.patient_name}</td>
+      <td>${s.medication||'—'}</td>
+      <td>${new Date(s.scheduled_at).toLocaleString('en-LB')}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${s.notes||'—'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="showQR(${s.id},'${s.patient_name}',${s.patient_id})" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary)">QR Code</button>
+        <button class="btn btn-sm btn-danger" onclick="cancel(${s.id})">Cancel</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px">No active schedules</td></tr>';
+}
+
+async function createSchedule() {
+  const dt = document.getElementById('f-datetime').value;
+  if (!dt) { alert('Pick a date and time'); return; }
+  const res = await api('POST','/schedules/',{
+    patient_id: +document.getElementById('f-patient').value,
+    tube_id:    +document.getElementById('f-tube').value,
+    scheduled_at: dt,
+    notes: document.getElementById('f-notes').value
+  });
+  document.getElementById('form-box').style.display='none';
+  load();
+}
+
+function showQR(scheduleId, patientName, patientId) {
+  document.getElementById('qr-patient-name').textContent = patientName;
+  document.getElementById('qr-schedule-id').textContent  = 'Schedule #' + scheduleId;
+  const url = `/api/qr/image/qr_patient${patientId}_schedule${scheduleId}.png`;
+  document.getElementById('qr-img').src         = url;
+  document.getElementById('qr-download').href   = url;
+  document.getElementById('qr-download').setAttribute('download', `apollo_qr_${patientName}_schedule${scheduleId}.png`);
+  const modal = document.getElementById('qr-modal');
+  modal.style.display = 'flex';
+}
+
+function closeQR() { document.getElementById('qr-modal').style.display='none'; }
+document.getElementById('qr-modal').addEventListener('click', e => { if(e.target.id==='qr-modal') closeQR(); });
+
+async function cancel(id) {
+  if (!confirm('Cancel this schedule?')) return;
+  await api('DELETE',`/schedules/${id}`); load();
+}
+
+load();
+</script>
+{% endblock %}

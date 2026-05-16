@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Tubes{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Tubes & Medications</h1>
+  <span style="font-size:13px;color:var(--text-muted)">4 physical tubes on the robot</span>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:16px" id="tubes-grid">
+  <div style="color:var(--text-muted);text-align:center;padding:30px">Loading...</div>
+</div>
+
+<div id="edit-box" class="card" style="display:none;border-left:3px solid var(--primary)">
+  <div style="font-size:14px;font-weight:500;margin-bottom:16px;color:var(--primary-dark)">Edit Tube <span id="edit-tube-num"></span></div>
+  <input type="hidden" id="edit-tube-id">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div>
+      <label>Medication name</label>
+      <input id="edit-med" placeholder="e.g. Paracetamol 500mg">
+    </div>
+    <div>
+      <label>Stock (number of pills)</label>
+      <input type="number" id="edit-stock" min="0" max="100" placeholder="e.g. 30">
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="saveTube()">Save</button>
+    <button class="btn" onclick="document.getElementById('edit-box').style.display='none'">Cancel</button>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+async function load() {
+  const tubes = await api('GET', '/tubes/');
+  const grid = document.getElementById('tubes-grid');
+  grid.innerHTML = tubes.map(t => {
+    const pct   = Math.min(100, Math.round((t.stock / 30) * 100));
+    const color = t.stock === 0 ? 'var(--danger)' : t.stock < 5 ? '#BA7517' : 'var(--primary)';
+    const badge = t.stock === 0 ? 'red' : t.stock < 5 ? 'amber' : 'teal';
+    return `
+    <div class="card" style="margin:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Tube ${t.id}</div>
+          <div style="font-size:15px;font-weight:500;margin-top:2px">${t.medication||'<span style="color:var(--text-muted);font-weight:400">Not assigned</span>'}</div>
+        </div>
+        <span class="badge badge-${badge}">${t.stock === 0 ? 'Empty' : t.stock < 5 ? 'Low' : 'OK'}</span>
+      </div>
+      <div style="font-size:22px;font-weight:500;margin-bottom:6px">${t.stock} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">pills</span></div>
+      <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:14px">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width .5s"></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="editTube(${t.id},'${t.medication||''}',${t.stock})" style="flex:1">Edit</button>
+        <button class="btn btn-sm btn-primary" onclick="refill(${t.id})" style="flex:1">Refill to 30</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editTube(id, med, stock) {
+  document.getElementById('edit-tube-id').value  = id;
+  document.getElementById('edit-tube-num').textContent = id;
+  document.getElementById('edit-med').value   = med;
+  document.getElementById('edit-stock').value = stock;
+  document.getElementById('edit-box').style.display = 'block';
+  document.getElementById('edit-box').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveTube() {
+  const id  = document.getElementById('edit-tube-id').value;
+  const med = document.getElementById('edit-med').value.trim();
+  if (!med) { alert('Enter a medication name'); return; }
+  await api('PUT', `/tubes/${id}`, { medication: med, stock: +document.getElementById('edit-stock').value });
+  document.getElementById('edit-box').style.display='none';
+  load();
+}
+
+async function refill(id) {
+  await api('POST', `/tubes/${id}/refill`, { stock: 30 });
+  load();
+}
+
+load();
+</script>
+{% endblock %}

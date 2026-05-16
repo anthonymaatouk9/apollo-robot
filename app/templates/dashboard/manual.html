@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Manual Control{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Manual control</h1>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div id="serial-status" style="font-size:12px;font-weight:500;padding:5px 12px;border-radius:99px;background:var(--danger-light);color:#791F1F;border:0.5px solid #F09595">
+      Arduino disconnected
+    </div>
+    <button class="btn btn-sm" id="connect-btn" onclick="connectSerial()">Connect Arduino</button>
+  </div>
+</div>
+
+<div class="stat-grid" style="margin-bottom:16px">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--primary-light)">
+      <svg viewBox="0 0 24 24" fill="var(--primary)"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+    <div class="stat-label">Battery</div>
+    <div class="stat-value" id="s-bat">—</div>
+    <div style="height:4px;background:var(--border);border-radius:99px;margin-top:6px;overflow:hidden">
+      <div id="s-bat-bar" style="height:100%;border-radius:99px;background:var(--primary);width:0%;transition:width .5s"></div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--primary-light)">
+      <svg viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    </div>
+    <div class="stat-label">Water tank</div>
+    <div class="stat-value" id="s-water">—</div>
+    <div style="height:4px;background:var(--border);border-radius:99px;margin-top:6px;overflow:hidden">
+      <div id="s-water-bar" style="height:100%;border-radius:99px;background:var(--primary-dark);width:0%;transition:width .5s"></div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--primary-light)">
+      <svg viewBox="0 0 24 24" fill="var(--primary)"><circle cx="12" cy="12" r="3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+    </div>
+    <div class="stat-label">Robot phase</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="s-phase">—</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+  <div class="card">
+    <div class="card-title">Dispense pill</div>
+    <label>Select tube</label>
+    <select id="tube-sel" style="margin-bottom:12px"></select>
+    <button class="btn btn-primary" style="width:100%" onclick="dispensePill()">Dispense pill</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Water + cup</div>
+    <label>Amount (ml)</label>
+    <select id="water-ml" style="margin-bottom:12px">
+      <option>100</option><option selected>150</option><option>200</option><option>250</option>
+    </select>
+    <button class="btn btn-primary" style="width:100%;background:var(--primary-dark);border-color:var(--primary-dark)" onclick="dispenseWater()">Dispense water + cup</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Cup only</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Drop one cup without filling water.</p>
+    <button class="btn" style="width:100%;background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary)" onclick="dispenseCup()">Dispense cup</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Reset tube position</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Rotate stepper back to home (tube 1).</p>
+    <button class="btn" style="width:100%;background:#FAEEDA;color:#412402;border-color:#BA7517" onclick="resetTube()">Reset to home</button>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div class="card-title">Refill stock</div>
+  <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+    <div style="flex:1;min-width:120px">
+      <label>Tube</label>
+      <select id="refill-tube">
+        <option value="1">Tube 1</option><option value="2">Tube 2</option>
+        <option value="3">Tube 3</option><option value="4">Tube 4</option>
+      </select>
+    </div>
+    <div style="width:100px">
+      <label>New count</label>
+      <input type="number" id="refill-count" value="30" min="1" max="50">
+    </div>
+    <button class="btn btn-primary" onclick="refillPills()">Confirm pill refill</button>
+    <button class="btn" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary)" onclick="refillWater()">Mark water full</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Action log</div>
+  <div id="action-log" style="font-size:13px;color:var(--text-muted)">
+    <div style="text-align:center;padding:16px">No actions yet</div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadSensors() {
+  const s = await api('GET','/manual/sensor-status');
+  const bat = s.battery_pct || 0;
+  const wat = s.water_pct   || 0;
+  document.getElementById('s-bat').textContent   = bat + '%';
+  document.getElementById('s-water').textContent = wat + '%';
+  document.getElementById('s-phase').textContent = s.phase || '—';
+  document.getElementById('s-bat-bar').style.width   = bat + '%';
+  document.getElementById('s-water-bar').style.width = wat + '%';
+  document.getElementById('s-bat-bar').style.background = bat < 20 ? 'var(--danger)' : bat < 30 ? '#BA7517' : 'var(--primary)';
+}
+
+async function loadTubes() {
+  const tubes = await api('GET','/tubes/');
+  document.getElementById('tube-sel').innerHTML = tubes.map(t=>`<option value="${t.id}">Tube ${t.id} — ${t.medication||'Empty'} (${t.stock} left)</option>`).join('');
+}
+
+function log(msg, ok=true) {
+  const div = document.getElementById('action-log');
+  if (div.querySelector('div[style*="center"]')) div.innerHTML='';
+  const now = new Date().toLocaleTimeString('en-LB');
+  const row = document.createElement('div');
+  row.style.cssText = 'padding:8px 0;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;font-size:13px';
+  row.innerHTML = `<span style="color:var(--text-muted);font-size:11px;font-family:monospace;white-space:nowrap">${now}</span><span style="flex:1;color:var(--text)">${msg}</span><span class="badge badge-${ok?'teal':'red'}">${ok?'OK':'Error'}</span>`;
+  div.insertBefore(row, div.firstChild);
+}
+
+async function dispensePill()  { const r=await api('POST','/manual/dispense-pill',{tube_id:+document.getElementById('tube-sel').value}); log(r.message||r.error,!r.error); loadTubes(); loadSensors(); }
+async function dispenseWater() { const r=await api('POST','/manual/dispense-water',{amount_ml:+document.getElementById('water-ml').value}); log(r.message||r.error,!r.error); loadSensors(); }
+async function dispenseCup()   { const r=await api('POST','/manual/dispense-cup'); log(r.message||r.error,!r.error); }
+async function resetTube()     { const r=await api('POST','/manual/reset-tube'); log(r.message||r.error,!r.error); }
+async function refillPills()   { const r=await api('POST','/manual/refill-pills',{tube_id:+document.getElementById('refill-tube').value,stock:+document.getElementById('refill-count').value}); log(r.message||r.error,!r.error); loadTubes(); }
+async function refillWater()   { const r=await api('POST','/manual/refill-water'); log(r.message||r.error,!r.error); loadSensors(); }
+
+async function checkSerialStatus() {
+  const s = await api('GET','/manual/serial-status');
+  const el  = document.getElementById('serial-status');
+  const btn = document.getElementById('connect-btn');
+  if (s.connected) {
+    el.style.background='var(--primary-light)'; el.style.color='var(--primary-dark)'; el.style.borderColor='var(--primary)';
+    el.textContent = 'Arduino connected — ' + s.port;
+    btn.style.display='none';
+  } else {
+    el.style.background='var(--danger-light)'; el.style.color='#791F1F'; el.style.borderColor='#F09595';
+    el.textContent = 'Arduino disconnected';
+    btn.style.display='inline-flex';
+  }
+}
+
+async function connectSerial() {
+  document.getElementById('connect-btn').textContent='Connecting...';
+  const r = await api('POST','/manual/connect-serial');
+  log(r.message, r.connected);
+  checkSerialStatus();
+}
+
+loadSensors(); loadTubes(); checkSerialStatus();
+setInterval(loadSensors, 5000);
+setInterval(checkSerialStatus, 5000);
+</script>
+{% endblock %}

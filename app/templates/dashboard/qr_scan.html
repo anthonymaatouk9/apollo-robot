@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}QR Scanner{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>QR Code Scanner — Live</h1>
+  <div id="status-badge" style="font-size:12px;font-weight:500;padding:5px 14px;border-radius:99px;background:var(--warning-light);color:#412402;border:0.5px solid #FAC775">
+    Waiting for QR code...
+  </div>
+</div>
+
+<div style="background:#000;border-radius:10px;overflow:hidden;margin-bottom:14px;border:0.5px solid var(--border)">
+  <img id="camera-feed" src="" style="width:100%;display:block;min-height:400px;object-fit:contain">
+</div>
+
+<div class="stat-grid" style="margin-bottom:14px">
+  <div class="stat-card">
+    <div class="stat-label">Expected patient</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="exp-patient">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Expected room</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="exp-room">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Mission state</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="exp-state">—</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Instructions</div>
+  <div style="font-size:13px;color:var(--text-muted);line-height:2">
+    1. The robot has arrived at the patient room<br>
+    2. Hold the <strong style="color:var(--text)">printed QR code</strong> in front of the camera<br>
+    3. Keep it steady — green box appears when detected<br>
+    4. Mission automatically continues after verification
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+let autoMode      = true;
+let checkInterval = null;
+
+async function loadMissionInfo() {
+  const missions = await api('GET', '/missions/?active=true');
+  const scanning  = missions.find(m => m.state === 'scanning_qr');
+
+  if (!scanning && autoMode) {
+    const anyActive = missions.find(m => !['completed','failed','cancelled'].includes(m.state));
+    const badge = document.getElementById('status-badge');
+    if (anyActive && anyActive.state === 'verified') {
+      badge.style.background='var(--primary-light)'; badge.style.color='var(--primary-dark)'; badge.style.borderColor='var(--primary)';
+      badge.textContent = 'QR Verified — continuing mission...';
+      setTimeout(() => { window.location.href='/missions'; }, 2000);
+    } else if (anyActive && anyActive.state === 'failed') {
+      badge.style.background='var(--danger-light)'; badge.style.color='#791F1F'; badge.style.borderColor='#F09595';
+      badge.textContent = 'QR Failed — mission aborted';
+      setTimeout(() => { window.location.href='/missions'; }, 3000);
+    } else if (!anyActive) {
+      window.location.href = '/missions';
+    }
+    return;
+  }
+
+  if (scanning) {
+    document.getElementById('exp-patient').textContent = scanning.patient_name || '—';
+    document.getElementById('exp-room').textContent    = scanning.room         || '—';
+    document.getElementById('exp-state').textContent   = scanning.state;
+  }
+}
+
+async function init() {
+  const missions = await api('GET', '/missions/?active=true');
+  const scanning  = missions.find(m => m.state === 'scanning_qr');
+  if (!scanning) { window.location.href = '/missions'; return; }
+  document.getElementById('camera-feed').src = '/api/camera/stream?' + Date.now();
+  loadMissionInfo();
+  checkInterval = setInterval(loadMissionInfo, 2000);
+}
+
+init();
+</script>
+{% endblock %}

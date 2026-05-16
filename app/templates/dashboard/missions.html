@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Missions{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Missions</h1>
+  <span style="font-size:13px;color:var(--text-muted)" id="mission-count">Loading...</span>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Patient</th>
+        <th>Room</th>
+        <th>Medication</th>
+        <th>State</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="m-tbody">
+      <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const colors = {
+  queued:'gray', navigating:'blue', arrived:'teal', scanning_qr:'blue',
+  verified:'teal', dispensing:'amber', verifying:'teal',
+  returning:'green', completed:'green', failed:'red', cancelled:'gray'
+};
+
+let wasVerifying = false;
+
+async function load() {
+  const missions = await api('GET', '/missions/');
+  const active   = missions.filter(m => !['completed','failed','cancelled'].includes(m.state));
+  document.getElementById('mission-count').textContent = `${active.length} active · ${missions.length} total`;
+
+  document.getElementById('m-tbody').innerHTML = missions.length ? missions.map(m => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:12px">#${m.id}</td>
+      <td style="font-weight:500">${m.patient_name||'—'}</td>
+      <td>${m.room||'—'}</td>
+      <td>${m.medication||'—'}</td>
+      <td><span class="badge badge-${colors[m.state]||'gray'}">${m.state}</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">${new Date(m.created_at).toLocaleString('en-LB')}</td>
+      <td style="display:flex;gap:6px">
+        ${m.state==='queued'?`<button class="btn btn-sm btn-primary" onclick="execute(${m.id})">Run now</button>`:''}
+        ${!['completed','failed','cancelled'].includes(m.state)?`<button class="btn btn-sm btn-danger" onclick="cancel(${m.id})">Cancel</button>`:''}
+      </td>
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px">No missions yet</td></tr>';
+
+  const scanning  = missions.find(m => m.state === 'scanning_qr');
+  const verifying = missions.find(m => m.state === 'verifying');
+  if (scanning && !wasVerifying) { wasVerifying = true; window.location.href = '/qr-scan'; }
+  else if (verifying && !wasVerifying) { wasVerifying = true; window.location.href = '/camera'; }
+  if (!scanning && !verifying) wasVerifying = false;
+}
+
+async function cancel(id) {
+  if (!confirm('Cancel this mission?')) return;
+  await api('POST', `/missions/${id}/cancel`); load();
+}
+
+async function execute(id) {
+  if (!confirm('Run this mission now?')) return;
+  const r = await api('POST', `/missions/${id}/execute`);
+  if (r.error) alert('Error: ' + r.error);
+  load();
+}
+
+async function autoCleanup() { await api('POST', '/missions/auto-cleanup'); }
+
+load();
+setInterval(load, 3000);
+setInterval(autoCleanup, 15000);
+</script>
+{% endblock %}

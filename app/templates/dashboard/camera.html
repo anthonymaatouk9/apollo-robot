@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}AI Camera{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>AI Verification — Live camera</h1>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="startCamera()" id="btn-start">Start camera</button>
+    <button class="btn btn-danger" onclick="stopCamera()" id="btn-stop" style="display:none">Stop camera</button>
+  </div>
+</div>
+
+<div style="background:#000;border-radius:10px;overflow:hidden;margin-bottom:14px;border:0.5px solid var(--border)">
+  <img id="camera-feed" src="" style="width:100%;display:none;min-height:360px;object-fit:contain">
+  <div id="camera-placeholder" style="width:100%;height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="#444"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+    <div style="color:#666;font-size:13px">Camera not started</div>
+  </div>
+</div>
+
+<div class="stat-grid" style="margin-bottom:14px">
+  <div class="stat-card">
+    <div class="stat-label">Camera</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="s-camera">Stopped</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Recording</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="s-recording">Off</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Verification</div>
+    <div class="stat-value" style="font-size:16px;margin-top:4px" id="s-verify">Idle</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div class="card-title">Manual recording</div>
+  <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <div>
+      <label>Mission ID (optional)</label>
+      <input type="number" id="rec-mission" placeholder="e.g. 5" style="width:130px">
+    </div>
+    <button class="btn btn-primary" onclick="startRecording()">Start recording</button>
+    <button class="btn btn-danger" onclick="stopRecording()">Stop recording</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Saved recordings</div>
+  <div id="recordings-list"><div style="color:var(--text-muted);text-align:center;padding:16px;font-size:13px">No recordings yet</div></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+let cameraRunning = false;
+let autoMode      = false;
+let checkInterval = null;
+
+async function startCamera() {
+  await api('POST','/camera/start');
+  document.getElementById('camera-feed').src = '/api/camera/stream?' + Date.now();
+  document.getElementById('camera-placeholder').style.display='none';
+  document.getElementById('camera-feed').style.display='block';
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('btn-stop').style.display='inline-flex';
+  cameraRunning = true;
+}
+
+async function stopCamera() {
+  await api('POST','/camera/stop');
+  document.getElementById('camera-feed').src='';
+  document.getElementById('camera-feed').style.display='none';
+  document.getElementById('camera-placeholder').style.display='flex';
+  document.getElementById('btn-start').style.display='inline-flex';
+  document.getElementById('btn-stop').style.display='none';
+  cameraRunning = false;
+}
+
+async function startRecording() {
+  const mission_id = +document.getElementById('rec-mission').value || null;
+  const r = await api('POST','/camera/start-recording',{mission_id});
+  alert('Recording started: ' + r.filename);
+  loadStatus();
+}
+
+async function stopRecording() { await api('POST','/camera/stop-recording'); loadStatus(); loadRecordings(); }
+
+async function deleteRecording(filename) {
+  if (!confirm(`Delete ${filename}?`)) return;
+  await api('POST',`/camera/recording/${filename}/delete`);
+  loadRecordings();
+}
+
+async function loadStatus() {
+  const s   = await api('GET','/camera/status');
+  const res = s.result;
+  document.getElementById('s-camera').textContent    = s.running   ? 'Running' : 'Stopped';
+  document.getElementById('s-recording').textContent = s.recording ? 'Recording' : 'Off';
+  const verEl = document.getElementById('s-verify');
+  if (res.status==='confirmed')      { verEl.textContent='Confirmed'; verEl.style.color='var(--success)'; }
+  else if (res.status==='watching')  { verEl.textContent=`Watching (${res.confirmed_frames}/${res.required_frames})`; verEl.style.color='var(--warning)'; }
+  else if (res.status==='failed')    { verEl.textContent='Not confirmed'; verEl.style.color='var(--danger)'; }
+  else                               { verEl.textContent='Idle'; verEl.style.color='var(--text-muted)'; }
+}
+
+async function loadRecordings() {
+  const recs = await api('GET','/camera/recordings');
+  const div  = document.getElementById('recordings-list');
+  if (!recs.length) { div.innerHTML='<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:13px">No recordings yet</div>'; return; }
+  div.innerHTML = `<table>
+    <thead><tr><th>Filename</th><th>Size</th><th>Actions</th></tr></thead>
+    <tbody>${recs.map(r=>`
+      <tr>
+        <td style="font-size:12px">${r.filename}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${r.size_mb} MB</td>
+        <td style="display:flex;gap:6px">
+          <a href="${r.url}" download class="btn btn-sm" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary)">Download</a>
+          <button class="btn btn-sm btn-danger" onclick="deleteRecording('${r.filename}')">Delete</button>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function autoCheckMission() {
+  const missions = await api('GET','/missions/?active=true');
+  const verifying = missions.find(m => m.state==='verifying');
+  if (!verifying && autoMode) {
+    autoMode = false;
+    clearInterval(checkInterval);
+    await stopCamera();
+    loadRecordings();
+    document.getElementById('s-verify').textContent = 'Done — returning to missions';
+    setTimeout(() => { window.location.href='/missions'; }, 3000);
+  }
+}
+
+async function autoStart() {
+  const missions = await api('GET','/missions/?active=true');
+  const verifying = missions.find(m => m.state==='verifying');
+  if (verifying) {
+    autoMode = true;
+    document.getElementById('camera-feed').src = '/api/camera/stream?' + Date.now();
+    document.getElementById('camera-placeholder').style.display='none';
+    document.getElementById('camera-feed').style.display='block';
+    document.getElementById('btn-start').style.display='none';
+    document.getElementById('btn-stop').style.display='inline-flex';
+    cameraRunning = true;
+    checkInterval = setInterval(autoCheckMission, 2000);
+  }
+}
+
+loadStatus(); loadRecordings();
+setInterval(loadStatus, 2000);
+setInterval(loadRecordings, 10000);
+autoStart();
+</script>
+{% endblock %}

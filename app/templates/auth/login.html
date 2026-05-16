@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apollo — Login</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1DB1B8;
+      --primary-dark: #00597F;
+      --primary-light: #E8F7F8;
+      --bg: #F0F7F9;
+      --white: #ffffff;
+      --text: #0D2B3E;
+      --text-muted: #5A7A8A;
+      --border: #D0E8EE;
+      --danger: #E24B4A;
+      --danger-light: #FCEBEB;
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-wrap { width: 100%; max-width: 400px; padding: 20px; }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo-icon { width: 56px; height: 56px; background: var(--primary-dark); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .logo-icon svg { width: 28px; height: 28px; fill: white; }
+    .logo-name { font-size: 24px; font-weight: 500; color: var(--text); }
+    .logo-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .card { background: var(--white); border-radius: 12px; border: 0.5px solid var(--border); padding: 28px; }
+    .card h2 { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 20px; }
+    label { font-size: 12px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 5px; margin-top: 14px; }
+    input { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--white); transition: border-color .15s; }
+    input:focus { outline: none; border-color: var(--primary); }
+    .btn { width: 100%; padding: 11px; border-radius: 8px; border: none; background: var(--primary); color: white; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 20px; transition: background .15s; }
+    .btn:hover { background: var(--primary-dark); }
+    .error { background: var(--danger-light); color: #791F1F; border: 0.5px solid #F09595; padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+    </div>
+    <div class="logo-name">Apollo</div>
+    <div class="logo-sub">Medical Robot System</div>
+  </div>
+
+  <div class="card">
+    <h2>Sign in to your account</h2>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Enter your username" autofocus required>
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter your password" required>
+      <button type="submit" class="btn">Sign in</button>
+    </form>
+  </div>
+
+  <div class="footer">Apollo Medical Robot System &copy; 2026</div>
+</div>
+</body>
+</html>

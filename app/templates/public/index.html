@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apollo — Autonomous Medical Pill Delivery Robot</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#1DB1B8;--pd:#00597F;--pl:#E8F7F8;--dark:#0A1628;--dark2:#0D1F35;--white:#fff;--text:#0D2B3E;--muted:#5A7A8A;--border:#D0E8EE;--bg:#F0F7F9}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,sans-serif;color:var(--text);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 6%;transition:box-shadow .3s}
+nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.nl{display:flex;align-items:center;gap:10px;text-decoration:none}
+.ni{width:34px;height:34px;background:var(--pd);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.ni svg{width:18px;height:18px;fill:white}
+.nn{font-size:16px;font-weight:500;color:var(--text)}
+.nlinks{display:flex;align-items:center;gap:28px}
+.nlinks a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s}
+.nlinks a:hover{color:var(--pd)}
+.nbtn{padding:7px 18px;background:var(--p);color:white;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;transition:background .15s}
+.nbtn:hover{background:var(--pd)}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(135deg,var(--dark) 0%,var(--dark2) 60%,#0A2535 100%);display:flex;align-items:center;padding:80px 6% 60px;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;opacity:.04;background-image:radial-gradient(circle at 1px 1px,var(--p) 1px,transparent 0);background-size:36px 36px}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(29,177,184,.12) 0%,transparent 70%);right:-100px;top:50%;transform:translateY(-50%)}
+.hero-content{position:relative;max-width:560px;z-index:2}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(29,177,184,.12);border:0.5px solid rgba(29,177,184,.3);color:var(--p);font-size:12px;font-weight:500;padding:5px 14px;border-radius:99px;margin-bottom:24px;animation:fadeDown .8s ease both}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--p);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.hero h1{font-size:clamp(34px,5vw,60px);font-weight:500;color:white;line-height:1.18;margin-bottom:20px;animation:fadeUp .8s .1s ease both}
+.hero h1 em{color:var(--p);font-style:normal}
+.hero p{font-size:17px;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:32px;animation:fadeUp .8s .2s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;animation:fadeUp .8s .3s ease both}
+.btn-p{padding:12px 26px;background:var(--p);color:white;border-radius:9px;font-size:14px;font-weight:500;text-decoration:none;transition:all .15s;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-o{padding:12px 26px;background:transparent;color:white;border:0.5px solid rgba(255,255,255,.25);border-radius:9px;font-size:14px;font-weight:500;text-decoration:none;transition:all .15s;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.btn-o:hover{background:rgba(255,255,255,.08);transform:translateY(-1px)}
+.hero-robot{position:absolute;right:6%;top:50%;transform:translateY(-50%);width:min(500px,46vw);z-index:2;animation:heroFloat 4s ease-in-out infinite}
+@keyframes heroFloat{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 18px))}}
+.hero-robot img{width:100%;filter:drop-shadow(0 40px 80px rgba(29,177,184,.35))}
+.hero-stats{display:flex;gap:36px;margin-top:56px;flex-wrap:wrap;animation:fadeUp .8s .4s ease both}
+.hstat .num{font-size:30px;font-weight:500;color:var(--p)}
+.hstat .lbl{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.3);font-size:11px;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+.scroll-hint svg{width:16px;height:16px;fill:currentColor}
+
+/* SECTION BASE */
+section{padding:96px 6%}
+.sec-label{font-size:11px;font-weight:500;color:var(--p);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.sec-title{font-size:clamp(28px,4vw,42px);font-weight:500;color:var(--text);line-height:1.22;margin-bottom:14px}
+.sec-sub{font-size:16px;color:var(--muted);line-height:1.7}
+.center{text-align:center;max-width:600px;margin:0 auto}
+
+/* DEMO VIDEO */
+.demo-section{background:var(--dark);padding:80px 6%}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+.demo-card{border-radius:12px;overflow:hidden;position:relative;background:#000;cursor:pointer}
+.demo-card video{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;transition:transform .3s}
+.demo-card:hover video{transform:scale(1.03)}
+.demo-card .overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);display:flex;align-items:flex-end;padding:16px}
+.demo-card .play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:rgba(29,177,184,.9);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.demo-card:hover .play-btn{background:var(--p);transform:translate(-50%,-50%) scale(1.1)}
+.demo-card .play-btn svg{width:20px;height:20px;fill:white;margin-left:3px}
+.demo-card .cap{color:white;font-size:13px;font-weight:500}
+.demo-card.featured{grid-column:span 2}
+
+/* HOW IT WORKS */
+.how{background:var(--bg)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:56px;position:relative}
+.steps::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:2px;background:linear-gradient(to right,var(--p),var(--pd));z-index:0}
+.step{background:var(--white);border-radius:12px;border:0.5px solid var(--border);padding:24px;position:relative;z-index:1;margin:0 6px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.step:hover{transform:translateY(-6px);border-color:var(--p);box-shadow:0 12px 40px rgba(29,177,184,.15)}
+.step-num{width:40px;height:40px;border-radius:50%;background:var(--p);color:white;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 0 6px rgba(29,177,184,.12)}
+.step h3{font-size:13px;font-weight:500;margin-bottom:8px;text-align:center}
+.step p{font-size:12px;color:var(--muted);line-height:1.6;text-align:center}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:56px}
+.feat{background:var(--white);border-radius:12px;border:0.5px solid var(--border);padding:26px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.feat:hover{transform:translateY(-5px);border-color:var(--p);box-shadow:0 12px 40px rgba(29,177,184,.12)}
+.feat-icon{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:var(--pl)}
+.feat-icon svg{width:22px;height:22px;fill:var(--pd)}
+.feat h3{font-size:15px;font-weight:500;margin-bottom:8px}
+.feat p{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* SHOWCASE */
+.showcase{background:var(--dark)}
+.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px;align-items:center}
+.showcase-img{border-radius:12px;overflow:hidden;border:0.5px solid rgba(255,255,255,.1)}
+.showcase-img img{width:100%;display:block}
+.showcase-text .sec-title{color:white}
+.showcase-text .sec-sub{color:rgba(255,255,255,.5)}
+.showcase-points{margin-top:24px;display:flex;flex-direction:column;gap:12px}
+.showcase-point{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:rgba(255,255,255,.7);line-height:1.6}
+.showcase-point .dot{width:20px;height:20px;border-radius:50%;background:rgba(29,177,184,.2);border:0.5px solid rgba(29,177,184,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.showcase-point .dot svg{width:10px;height:10px;fill:var(--p)}
+
+/* TECH */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:56px}
+.tech-card{background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.08);border-radius:10px;padding:18px 12px;text-align:center;transition:all .2s;cursor:default}
+.tech-card:hover{background:rgba(29,177,184,.1);border-color:rgba(29,177,184,.3);transform:translateY(-3px)}
+.tech-icon{font-size:26px;margin-bottom:8px}
+.tech-name{font-size:13px;font-weight:500;color:white}
+.tech-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:56px}
+.member{background:var(--white);border-radius:12px;border:0.5px solid var(--border);overflow:hidden;text-align:center;transition:transform .2s,border-color .2s,box-shadow .2s}
+.member:hover{transform:translateY(-5px);border-color:var(--p);box-shadow:0 12px 40px rgba(29,177,184,.12)}
+.member-photo{width:100%;height:320px;background-size:contain;background-repeat:no-repeat;background-position:center bottom;background-color:#f7fbfc}
+.member-info{padding:20px 22px 26px}
+.member h3{font-size:16px;font-weight:500;margin-bottom:6px}
+.member .major{font-size:12px;font-weight:500;color:var(--p);margin-bottom:12px;padding:3px 10px;background:var(--pl);border-radius:99px;display:inline-block}
+.member .bio{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:8px;margin-top:48px;max-width:760px;margin-left:auto;margin-right:auto}
+.faq-item{background:var(--white);border:0.5px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.faq-item.open{border-color:var(--p)}
+.faq-q{padding:16px 18px;font-size:14px;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
+.faq-q svg{width:14px;height:14px;fill:var(--muted);transition:transform .2s;flex-shrink:0}
+.faq-item.open .faq-q svg{transform:rotate(180deg);fill:var(--p)}
+.faq-item.open .faq-q{color:var(--pd)}
+.faq-a{display:none;padding:0 18px 16px;font-size:13px;color:var(--muted);line-height:1.7}
+.faq-item.open .faq-a{display:block}
+
+/* CONTACT */
+.contact-section{background:var(--bg)}
+.contact-wrap{display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:start;margin-top:56px}
+.contact-info{display:flex;flex-direction:column;gap:20px}
+.contact-info-item{display:flex;align-items:flex-start;gap:14px}
+.ci-icon{width:40px;height:40px;border-radius:10px;background:var(--pl);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-icon svg{width:18px;height:18px;fill:var(--pd)}
+.ci-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.ci-sub{font-size:13px;color:var(--muted)}
+.contact-form{background:var(--white);border-radius:12px;border:0.5px solid var(--border);padding:28px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:span 2}
+.form-group label{font-size:12px;font-weight:500;color:var(--muted)}
+.form-group input,.form-group textarea,.form-group select{padding:9px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white);transition:border-color .15s;outline:none}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--p)}
+.form-group textarea{resize:vertical;min-height:110px}
+.form-success{display:none;background:#EAF3DE;border:0.5px solid #9BC96B;border-radius:8px;padding:12px 16px;font-size:13px;color:#27500A;margin-top:12px}
+
+/* FOOTER */
+footer{background:var(--dark);padding:48px 6% 32px}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand .fb-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fb-icon{width:30px;height:30px;background:var(--p);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.fb-icon svg{width:16px;height:16px;fill:white}
+.fb-name{font-size:15px;font-weight:500;color:white}
+.footer-brand p{font-size:13px;color:rgba(255,255,255,.35);line-height:1.7}
+.footer-col h4{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:var(--p)}
+.footer-bottom{border-top:0.5px solid rgba(255,255,255,.08);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.fade-up.visible{opacity:1;transform:none}
+.fade-left{opacity:0;transform:translateX(-28px);transition:opacity .7s ease,transform .7s ease}
+.fade-left.visible{opacity:1;transform:none}
+.fade-right{opacity:0;transform:translateX(28px);transition:opacity .7s ease,transform .7s ease}
+.fade-right.visible{opacity:1;transform:none}
+
+/* VIDEO MODAL */
+.vmodal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.vmodal.open{display:flex}
+.vmodal video{max-width:900px;width:100%;border-radius:10px;outline:none}
+.vmodal-close{position:absolute;top:20px;right:24px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.vmodal-close:hover{background:rgba(255,255,255,.2)}
+.vmodal-close svg{width:16px;height:16px;fill:white}
+
+@media(max-width:900px){
+  .hero-robot{display:none}
+  .demo-card.featured{grid-column:span 1}
+  .demo-grid{grid-template-columns:1fr}
+  .showcase-grid{grid-template-columns:1fr}
+  .team-grid{grid-template-columns:1fr}
+  .contact-wrap{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .nlinks{display:none}
+  .steps::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nl" href="#">
+    <img src="/static/images/logo.png" alt="Apollo" style="height:28px;width:auto">
+  </a>
+  <div class="nlinks">
+    <a href="#demo">Demo</a>
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#team">Team</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="/login" class="nbtn">Nurse Login →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="pulse"></span>Lebanon · Final Year Project 2026</div>
+    <h1>Delivering medication.<br><em>Protecting patients.</em><br>Redefining hospital care.</h1>
+    <p>Apollo is an autonomous robotic system that delivers the right medication to the right patient — verified by QR code, tracked in real time, confirmed by AI vision.</p>
+    <div class="hero-btns">
+      <a href="#demo" class="btn-p">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+        Watch demo
+      </a>
+      <a href="#how" class="btn-o">How it works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="num">4</div><div class="lbl">Medication tubes</div></div>
+      <div class="hstat"><div class="num">QR</div><div class="lbl">Patient ID</div></div>
+      <div class="hstat"><div class="num">AI</div><div class="lbl">Intake verification</div></div>
+      <div class="hstat"><div class="num">8</div><div class="lbl">Mission phases</div></div>
+    </div>
+  </div>
+  <div class="hero-robot">
+    <img src="/static/images/robot_hero.png" alt="Apollo Robot">
+  </div>
+  <div class="scroll-hint">
+    <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+    Scroll to explore
+  </div>
+</div>
+
+<!-- DEMO VIDEOS -->
+<section class="demo-section" id="demo">
+  <div class="fade-up center" style="max-width:700px">
+    <div class="sec-label" style="color:var(--p)">See it in action</div>
+    <div class="sec-title" style="color:white">Apollo live demos</div>
+    <div class="sec-sub" style="color:rgba(255,255,255,.5)">Real footage of Apollo performing full medication deliveries, QR patient verification, and AI intake confirmation.</div>
+  </div>
+  <div class="demo-grid fade-up" style="margin-top:48px">
+    <div class="demo-card featured" onclick="openVideo('/static/videos/demo.mp4')">
+      <video src="/static/videos/demo.mp4" muted playsinline preload="metadata"></video>
+      <div class="overlay"><span class="cap">Full mission demo — end to end delivery</span></div>
+      <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    </div>
+    <div class="demo-card" onclick="openVideo('/static/videos/pill_verify.mp4')">
+      <video src="/static/videos/pill_verify.mp4" muted playsinline preload="metadata"></video>
+      <div class="overlay"><span class="cap">AI pill intake verification</span></div>
+      <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    </div>
+    <div class="demo-card" onclick="openVideo('/static/videos/demo2.mp4')">
+      <video src="/static/videos/demo2.mp4" muted playsinline preload="metadata"></video>
+      <div class="overlay"><span class="cap">Dashboard live mission tracking</span></div>
+      <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="fade-up center">
+    <div class="sec-label">Process</div>
+    <div class="sec-title">How Apollo works</div>
+    <div class="sec-sub">From nurse input to verified delivery — fully automated in minutes.</div>
+  </div>
+  <div class="steps fade-up">
+    <div class="step"><div class="step-num">1</div><h3>Register patient</h3><p>Nurse registers patient and assigns medication schedule via web dashboard</p></div>
+    <div class="step"><div class="step-num">2</div><h3>QR generated</h3><p>Unique QR code auto-generated and placed on patient's bed</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Robot navigates</h3><p>Apollo autonomously navigates to the correct room at scheduled time</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Patient verified</h3><p>Camera scans QR code — wrong patient immediately aborts mission</p></div>
+    <div class="step"><div class="step-num">5</div><h3>Medication dispensed</h3><p>Correct pill + cup of water dispensed automatically</p></div>
+    <div class="step"><div class="step-num">6</div><h3>AI confirms</h3><p>Computer vision confirms patient took medication — session recorded</p></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="fade-up center">
+    <div class="sec-label">Capabilities</div>
+    <div class="sec-title">Everything Apollo can do</div>
+    <div class="sec-sub">Built for real hospital environments with safety, accuracy, and reliability at every step.</div>
+  </div>
+  <div class="features-grid fade-up">
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><h3>Autonomous navigation</h3><p>Fixed coordinate navigation with ultrasonic obstacle detection. Stops if path blocked, resumes automatically when clear.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-6 8h1.5v1.5H13V13zm1.5 1.5H16V16h-1.5v-1.5zM16 13h1.5v1.5H16V13zm-3 3h1.5v1.5H13V16zm1.5 1.5H16V19h-1.5v-1.5zM16 16h1.5v1.5H16V16zm1.5-1.5H19V16h-1.5v-1.5zm0 3H19V19h-1.5v-1.5z"/></svg></div><h3>QR patient verification</h3><p>Every delivery verified by live QR code scan. Wrong patient or wrong room — mission immediately aborted and nurse alerted.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3z"/></svg></div><h3>4-tube dispensing</h3><p>Stepper motor selects correct tube. Servo drops exactly one pill. IR sensor confirms drop before proceeding.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div><h3>Automatic water & cup</h3><p>Cup automatically dispensed and filled with controlled water amount — measured by flow sensor for precision.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg></div><h3>AI intake verification</h3><p>YOLOv8 + MediaPipe monitor the patient taking medication. Session recorded and saved as video evidence per mission.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></div><h3>Real-time dashboard</h3><p>Full web dashboard — manage patients, schedule medications, track missions live, receive instant alerts from any device.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div><h3>Battery & stock monitoring</h3><p>Real-time battery tracking with automatic charging below 30%. Pill stock and water tank levels monitored with proactive alerts.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div><h3>Role-based security</h3><p>Admin-only account creation. Nurses cannot self-register. All actions logged with timestamps for full medical audit trail.</p></div>
+  </div>
+</section>
+
+<!-- SHOWCASE — AI Detection -->
+<section class="showcase" id="showcase">
+  <div class="showcase-grid">
+    <div class="showcase-img fade-left">
+      <img src="/static/images/ai_detection.jpeg" alt="Apollo AI Detection">
+    </div>
+    <div class="showcase-text fade-right">
+      <div class="sec-label" style="color:var(--p)">Computer vision</div>
+      <div class="sec-title" style="color:white">AI-powered pill intake verification</div>
+      <div class="sec-sub" style="color:rgba(255,255,255,.5)">Apollo's camera uses YOLOv8 and MediaPipe to watch the patient and confirm medication intake in real time.</div>
+      <div class="showcase-points">
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>YOLOv8 detects person and cup with confidence scoring</span></div>
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>MediaPipe tracks hand movement — confirms drinking gesture</span></div>
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>3 consecutive confirmed frames required before marking as taken</span></div>
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>Full session recorded and saved per mission for medical records</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="showcase-grid" style="margin-top:60px">
+    <div class="showcase-text fade-left">
+      <div class="sec-label" style="color:var(--p)">Nurse dashboard</div>
+      <div class="sec-title" style="color:white">Complete hospital control system</div>
+      <div class="sec-sub" style="color:rgba(255,255,255,.5)">A professional web dashboard gives nurses full visibility and control over every aspect of Apollo's operations.</div>
+      <div class="showcase-points">
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>Live mission tracking with real-time state updates every 3 seconds</span></div>
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>Patient management, medication scheduling, tube stock control</span></div>
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>Instant alerts for low battery, low pills, mission failures</span></div>
+        <div class="showcase-point"><div class="dot"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><span>Manual override — dispense directly without a mission</span></div>
+      </div>
+    </div>
+    <div class="showcase-img fade-right">
+      <img src="/static/images/dashboard.png" alt="Apollo Dashboard">
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section style="background:var(--dark);padding:80px 6%" id="tech">
+  <div class="fade-up center" style="max-width:700px">
+    <div class="sec-label" style="color:var(--p)">Stack</div>
+    <div class="sec-title" style="color:white">Built with</div>
+    <div class="sec-sub" style="color:rgba(255,255,255,.45)">A carefully chosen stack balancing performance, reliability, and embedded hardware constraints.</div>
+  </div>
+  <div class="tech-grid fade-up">
+    <div class="tech-card"><div class="tech-icon">🍓</div><div class="tech-name">Raspberry Pi 4</div><div class="tech-role">Main controller</div></div>
+    <div class="tech-card"><div class="tech-icon">⚡</div><div class="tech-name">Arduino Mega</div><div class="tech-role">Hardware control</div></div>
+    <div class="tech-card"><div class="tech-icon">🐍</div><div class="tech-name">Python 3</div><div class="tech-role">Core language</div></div>
+    <div class="tech-card"><div class="tech-icon">⚗️</div><div class="tech-name">Flask</div><div class="tech-role">Web backend</div></div>
+    <div class="tech-card"><div class="tech-icon">🗄️</div><div class="tech-name">PostgreSQL</div><div class="tech-role">Database</div></div>
+    <div class="tech-card"><div class="tech-icon">👁️</div><div class="tech-name">YOLOv8</div><div class="tech-role">Object detection</div></div>
+    <div class="tech-card"><div class="tech-icon">✋</div><div class="tech-name">MediaPipe</div><div class="tech-role">Hand tracking</div></div>
+    <div class="tech-card"><div class="tech-icon">📷</div><div class="tech-name">OpenCV</div><div class="tech-role">Computer vision</div></div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="fade-up center">
+    <div class="sec-label">People</div>
+    <div class="sec-title">Meet the team</div>
+    <div class="sec-sub">Three engineers from Lebanon who designed, built, and programmed Apollo from the ground up.</div>
+  </div>
+  <div class="team-grid fade-up">
+    <div class="member">
+      <div class="member-photo" style="background-image:url('/static/images/team_anthony.png')"></div>
+      <div class="member-info">
+        <h3>Anthony Maatouk</h3>
+        <div class="major">Computer & Communications Engineering</div>
+        <p class="bio">Built the full software stack — Flask backend, PostgreSQL database, AI verification pipeline, live camera streaming, nurse dashboard, QR patient identification, and Arduino serial communication.</p>
+      </div>
+    </div>
+    <div class="member">
+      <div class="member-photo" style="background-image:url('/static/images/team_chris.png')"></div>
+      <div class="member-info">
+        <h3>Chris Lian</h3>
+        <div class="major">Mechatronics Engineering</div>
+        <p class="bio">Hardware design and motor control systems. Responsible for the mechanical integration of the pill dispensing mechanism, water delivery system, and physical robot assembly.</p>
+      </div>
+    </div>
+    <div class="member">
+      <div class="member-photo" style="background-image:url('/static/images/team_ali.png')"></div>
+      <div class="member-info">
+        <h3>Ali Awwad</h3>
+        <div class="major">Mechatronics Engineering</div>
+        <p class="bio">Robot chassis design, sensor integration, and electronic wiring. Designed the physical platform and integrated all hardware subsystems including motors, encoders, and sensors.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section style="background:var(--bg)" id="faq">
+  <div class="fade-up center">
+    <div class="sec-label">Questions</div>
+    <div class="sec-title">Frequently asked</div>
+    <div class="sec-sub">Everything you need to know about how Apollo works.</div>
+  </div>
+  <div class="faq-list fade-up">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How does Apollo verify the correct patient?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">Apollo uses a unique QR code for each scheduled delivery. The QR encodes the patient ID, room, and schedule ID. When the robot arrives, it scans the QR with its live camera and verifies all three fields match before dispensing any medication. A mismatch immediately aborts the mission and alerts the nurse.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What happens if the robot encounters an obstacle?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">Apollo has an ultrasonic sensor that continuously monitors the path ahead. If an object is detected within 30cm, the robot immediately stops and waits. Once the path is clear, it automatically resumes navigation. The nurse dashboard shows obstacle alerts in real time.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How does the AI confirm the patient took their pill?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">After dispensing, Apollo activates its camera and uses YOLOv8 to detect the patient and cup while MediaPipe tracks hand movement. When the system detects the patient raising the cup toward their face in 3 consecutive frames, intake is confirmed. The entire session is recorded and saved as video evidence.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How many different medications can Apollo carry?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">Apollo has 4 medication tubes, each loaded with a different pill. A stepper motor rotates to the correct tube for each patient's prescription. Each tube holds up to 30 pills and stock levels are tracked in real time on the dashboard with low-stock alerts.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can nurses control Apollo from their phone?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">Yes. The nurse dashboard is a web application accessible from any device on the hospital network — phone, tablet, or desktop. Nurses can schedule deliveries, monitor missions live, trigger manual dispenses, view live camera feeds, and receive instant alerts all from a browser.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What happens if the battery runs low during a mission?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">Apollo monitors battery continuously. A warning alert appears on the dashboard below 30%. Below 20%, all new missions are blocked to prevent the robot from running out of power mid-delivery. The robot can be sent to charge manually from the dashboard or automatically when idle.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How are nurse accounts managed?<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+      <div class="faq-a">Only the admin account can create nurse accounts — nurses cannot self-register. The admin panel allows creating, deactivating, and resetting passwords for all accounts. All login activity and operations are logged with timestamps for a full audit trail.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="fade-up center">
+    <div class="sec-label">Get in touch</div>
+    <div class="sec-title">Contact the team</div>
+    <div class="sec-sub">Have questions about Apollo? Want to learn more or collaborate? We'd love to hear from you.</div>
+  </div>
+  <div class="contact-wrap fade-up">
+    <div class="contact-info">
+      <div class="contact-info-item">
+        <div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+        <div><div class="ci-title">Location</div><div class="ci-sub">Lebanon</div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg></div>
+        <div><div class="ci-title">Project</div><div class="ci-sub">Apollo — Final Year 2026</div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+        <div><div class="ci-title">Team</div><div class="ci-sub">Anthony · Chris · Ali</div></div>
+      </div>
+      <div style="background:var(--white);border-radius:12px;border:0.5px solid var(--border);padding:20px;margin-top:8px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:8px">Response time</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">We typically respond to all messages within 24 hours. Your message is received directly by the Apollo team.</div>
+      </div>
+    </div>
+    <div class="contact-form">
+      <div style="font-size:15px;font-weight:500;margin-bottom:20px">Send us a message</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Your name</label>
+          <input type="text" id="c-name" placeholder="John Smith">
+        </div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="c-email" placeholder="john@example.com">
+        </div>
+        <div class="form-group full">
+          <label>Subject</label>
+          <input type="text" id="c-subject" placeholder="Question about Apollo">
+        </div>
+        <div class="form-group full">
+          <label>Message</label>
+          <textarea id="c-message" placeholder="Tell us what you'd like to know..."></textarea>
+        </div>
+      </div>
+      <button class="btn-p" style="width:100%;margin-top:16px;justify-content:center" onclick="sendContact()">
+        Send message
+      </button>
+      <div class="form-success" id="form-success">
+        ✓ Message sent! We'll get back to you soon.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="fb-logo">
+        <img src="/static/images/logo.png" alt="Apollo" style="height:30px;width:auto;filter:brightness(0) invert(1);margin-bottom:4px">
+      </div>
+      <p>Autonomous medical pill delivery robot. Delivering medication. Protecting patients. Redefining hospital care.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <a href="#demo">Demo videos</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#tech">Technology</a>
+    </div>
+    <div class="footer-col">
+      <h4>Project</h4>
+      <a href="#team">Meet the team</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+      <a href="/login">Nurse login</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Apollo — Anthony Maatouk, Chris Lian, Ali Awwad — Lebanon</div>
+    <div class="footer-copy">Final Year Project · Computer & Communications Engineering · Mechatronics Engineering</div>
+  </div>
+</footer>
+
+<!-- VIDEO MODAL -->
+<div class="vmodal" id="vmodal" onclick="closeVideo(event)">
+  <button class="vmodal-close" onclick="closeVideoBtn()"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+  <video id="vmodal-video" controls></video>
+</div>
+
+<script>
+// Scroll animations
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-up,.fade-left,.fade-right').forEach(el => observer.observe(el));
+
+// Nav scroll shadow
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// FAQ
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// Video modal
+function openVideo(src) {
+  const modal = document.getElementById('vmodal');
+  const video = document.getElementById('vmodal-video');
+  video.src = src;
+  modal.classList.add('open');
+  video.play();
+}
+
+function closeVideoBtn() {
+  const modal = document.getElementById('vmodal');
+  const video = document.getElementById('vmodal-video');
+  video.pause();
+  video.src = '';
+  modal.classList.remove('open');
+}
+
+function closeVideo(e) {
+  if (e.target === document.getElementById('vmodal')) closeVideoBtn();
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeVideoBtn(); });
+
+// Contact form
+async function sendContact() {
+  const name    = document.getElementById('c-name').value.trim();
+  const email   = document.getElementById('c-email').value.trim();
+  const subject = document.getElementById('c-subject').value.trim();
+  const message = document.getElementById('c-message').value.trim();
+
+  if (!name||!email||!subject||!message) {
+    alert('Please fill in all fields'); return;
+  }
+
+  const btn = document.querySelector('.contact-form .btn-p');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/contact/send', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, email, subject, message})
+    });
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('form-success').style.display = 'block';
+    ['c-name','c-email','c-subject','c-message'].forEach(id => document.getElementById(id).value='');
+    btn.textContent = 'Message sent ✓';
+    btn.style.background = '#3B6D11';
+  } catch(e) {
+    alert('Failed to send. Please try again.');
+    btn.textContent = 'Send message';
+    btn.disabled = false;
+  }
+}
+
+// Animate stats counter on scroll
+const statsObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.num').forEach(el => {
+        const val = el.textContent;
+        if (!isNaN(val)) {
+          let start = 0;
+          const end = parseInt(val);
+          const timer = setInterval(() => {
+            start += Math.ceil(end/20);
+            if (start >= end) { el.textContent = val; clearInterval(timer); }
+            else el.textContent = start;
+          }, 50);
+        }
+      });
+      statsObserver.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('.hero-stats').forEach(el => statsObserver.observe(el));
+</script>
+</body>
+</html>

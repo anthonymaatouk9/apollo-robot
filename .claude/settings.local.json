@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(python -m venv venv)",
+      "Bash(python reset_db.py)",
+      "PowerShell(Copy-Item -Path \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\Untitled-2aaa.png\" -Destination \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\logo.png\" -Force)",
+      "PowerShell(Copy-Item -Path \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\tm8s.jpeg\" -Destination \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team.jpeg\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\anthony ma3.png\"  \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_anthony.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\kis lian.png\"      \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_chris.png\"   -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ali awwad.png\"     \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_ali.png\"     -Force)"
+    ]
+  }
+}

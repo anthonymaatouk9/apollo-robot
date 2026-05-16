@@ -1,0 +1,79 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+
+from flask import Flask, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_cors import CORS
+from flask_login import LoginManager
+from config_production import ProductionConfig
+
+db            = SQLAlchemy()
+migrate       = Migrate()
+login_manager = LoginManager()
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(ProductionConfig)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    CORS(app)
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+
+    from app.models.user import User
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    from app.models import (
+        Patient, Tube, Schedule, Mission,
+        RobotState, DispenseLog, Alert, Waypoint
+    )
+    from app.models import ContactMessage
+
+    # Public routes only
+    from app.routes.contact   import contact_bp
+    from app.routes.auth      import auth_bp
+    from app.routes.admin     import admin_bp
+
+    # Public website
+    from flask import render_template
+    @app.route("/")
+    @app.route("/about")
+    def public():
+        return render_template("public/index.html")
+
+    app.register_blueprint(contact_bp, url_prefix="/api/contact")
+    app.register_blueprint(auth_bp,    url_prefix="/")
+    app.register_blueprint(admin_bp,   url_prefix="/admin")
+
+    with app.app_context():
+        db.create_all()
+        _seed()
+
+    return app
+
+
+def _seed():
+    from app.models import RobotState, Tube
+    from app.models.user import User
+
+    if not RobotState.query.get(1):
+        db.session.add(RobotState(id=1))
+        db.session.commit()
+
+    for tube_id in [1, 2, 3, 4]:
+        if not Tube.query.get(tube_id):
+            db.session.add(Tube(id=tube_id))
+
+    if not User.query.filter_by(role="admin").first():
+        admin = User(username="admin", full_name="Administrator", role="admin")
+        admin.set_password("apollo2024")
+        db.session.add(admin)
+
+    db.session.commit()
+
+
+app = create_app()

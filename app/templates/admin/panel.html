@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Admin Panel</h1>
+  <button class="btn btn-primary" onclick="showForm()">+ New account</button>
+</div>
+
+<div id="form-box" class="card" style="display:none;margin-bottom:16px;border-left:3px solid var(--primary)">
+  <div style="font-size:14px;font-weight:500;margin-bottom:16px;color:var(--primary-dark)">Create nurse account</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div>
+      <label>Full name</label>
+      <input id="f-name" placeholder="e.g. Sarah Khoury">
+    </div>
+    <div>
+      <label>Username</label>
+      <input id="f-username" placeholder="e.g. nurse_sarah">
+    </div>
+    <div>
+      <label>Password</label>
+      <input type="password" id="f-password" placeholder="Minimum 4 characters">
+    </div>
+    <div>
+      <label>Role</label>
+      <select id="f-role">
+        <option value="nurse">Nurse</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="createUser()">Create account</button>
+    <button class="btn" onclick="document.getElementById('form-box').style.display='none'">Cancel</button>
+  </div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Last login</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="users-tbody">
+      <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Messages inbox -->
+<div class="card" style="margin-top:16px;padding:0;overflow:hidden">
+  <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)">
+    <div style="font-size:14px;font-weight:500">Contact messages <span id="unread-badge" style="display:none;background:var(--danger);color:white;font-size:11px;padding:2px 7px;border-radius:99px;margin-left:6px"></span></div>
+  </div>
+  <div id="messages-list" style="padding:12px 20px">
+    <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Loading...</div>
+  </div>
+</div>
+
+<!-- Message detail modal -->
+<div id="msg-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:12px;padding:28px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:500" id="msg-subject"></div>
+      <button class="btn btn-sm" onclick="closeMsgModal()">Close</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+      From: <strong id="msg-from"></strong> &nbsp;|&nbsp; <span id="msg-email"></span><br>
+      <span id="msg-date"></span>
+    </div>
+    <div style="font-size:13px;color:var(--text);line-height:1.7;background:var(--bg);padding:14px;border-radius:8px" id="msg-body"></div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <a id="msg-reply-btn" href="#" class="btn btn-primary btn-sm">Reply by email</a>
+      <button class="btn btn-sm btn-danger" id="msg-delete-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset password modal -->
+<div id="reset-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:12px;padding:28px;max-width:360px;width:90%">
+    <div style="font-size:15px;font-weight:500;margin-bottom:16px">Reset password</div>
+    <input type="hidden" id="reset-uid">
+    <label>New password</label>
+    <input type="password" id="reset-pass" placeholder="Minimum 4 characters" style="margin-bottom:16px">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="doReset()">Reset password</button>
+      <button class="btn" onclick="closeReset()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function showForm() { document.getElementById('form-box').style.display='block'; window.scrollTo(0,0); }
+
+async function load() {
+  const users = await fetch('/admin/users').then(r=>r.json());
+  document.getElementById('users-tbody').innerHTML = users.map(u => `
+    <tr>
+      <td style="font-weight:500">${u.full_name}</td>
+      <td style="color:var(--text-muted);font-size:13px">${u.username}</td>
+      <td><span class="badge badge-${u.role==='admin'?'teal':'blue'}">${u.role}</span></td>
+      <td><span class="badge badge-${u.is_active?'green':'gray'}">${u.is_active?'Active':'Inactive'}</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">${u.last_login ? new Date(u.last_login).toLocaleString('en-LB') : 'Never'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="showReset(${u.id})" style="background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary)">Reset password</button>
+        <button class="btn btn-sm btn-danger" onclick="deactivate(${u.id},'${u.full_name}')">Deactivate</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function createUser() {
+  const name     = document.getElementById('f-name').value.trim();
+  const username = document.getElementById('f-username').value.trim();
+  const password = document.getElementById('f-password').value;
+  const role     = document.getElementById('f-role').value;
+  if (!name||!username||!password) { alert('All fields required'); return; }
+  const r = await fetch('/admin/users', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({full_name:name, username, password, role})
+  }).then(r=>r.json());
+  if (r.error) { alert('Error: ' + r.error); return; }
+  alert(r.message);
+  document.getElementById('form-box').style.display='none';
+  load();
+}
+
+async function deactivate(id, name) {
+  if (!confirm(`Deactivate ${name}? They won't be able to login.`)) return;
+  const r = await fetch(`/admin/users/${id}`, {method:'DELETE'}).then(r=>r.json());
+  if (r.error) { alert('Error: ' + r.error); return; }
+  alert(r.message);
+  load();
+}
+
+function showReset(id) {
+  document.getElementById('reset-uid').value = id;
+  document.getElementById('reset-pass').value = '';
+  const modal = document.getElementById('reset-modal');
+  modal.style.display = 'flex';
+}
+
+function closeReset() { document.getElementById('reset-modal').style.display='none'; }
+
+async function doReset() {
+  const id   = document.getElementById('reset-uid').value;
+  const pass = document.getElementById('reset-pass').value;
+  if (!pass || pass.length < 4) { alert('Password must be at least 4 characters'); return; }
+  const r = await fetch(`/admin/users/${id}/reset-password`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({password: pass})
+  }).then(r=>r.json());
+  alert(r.message || r.error);
+  closeReset();
+}
+
+document.getElementById('reset-modal').addEventListener('click', e => { if(e.target.id==='reset-modal') closeReset(); });
+
+async function loadMessages() {
+  const msgs = await fetch('/api/contact/messages').then(r=>r.json());
+  if (msgs.error) return;
+  const unread = msgs.filter(m => !m.is_read).length;
+  const badge = document.getElementById('unread-badge');
+  if (unread > 0) { badge.style.display='inline'; badge.textContent = unread + ' new'; }
+  else badge.style.display='none';
+
+  const div = document.getElementById('messages-list');
+  if (!msgs.length) { div.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">No messages yet</div>'; return; }
+  div.innerHTML = msgs.map(m=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="openMsg(${m.id},'${encodeURIComponent(m.subject)}','${encodeURIComponent(m.name)}','${encodeURIComponent(m.email)}','${encodeURIComponent(m.message)}','${m.created_at}')">
+      <div style="width:8px;height:8px;border-radius:50%;background:${m.is_read?'var(--border)':'var(--primary)'};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:${m.is_read?'400':'500'};color:var(--text)">${m.name} <span style="color:var(--text-muted);font-weight:400;font-size:12px">&lt;${m.email}&gt;</span></div>
+        <div style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.subject}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);white-space:nowrap">${new Date(m.created_at).toLocaleString('en-LB')}</div>
+    </div>`).join('');
+}
+
+let currentMsgId = null;
+function openMsg(id, subject, name, email, message, date) {
+  currentMsgId = id;
+  document.getElementById('msg-subject').textContent  = decodeURIComponent(subject);
+  document.getElementById('msg-from').textContent     = decodeURIComponent(name);
+  document.getElementById('msg-email').textContent    = decodeURIComponent(email);
+  document.getElementById('msg-body').textContent     = decodeURIComponent(message);
+  document.getElementById('msg-date').textContent     = new Date(date).toLocaleString('en-LB');
+  document.getElementById('msg-reply-btn').href       = 'mailto:' + decodeURIComponent(email) + '?subject=Re: ' + decodeURIComponent(subject);
+  document.getElementById('msg-modal').style.display  = 'flex';
+  fetch('/api/contact/messages/' + id + '/read', {method:'POST'});
+  loadMessages();
+}
+
+function closeMsgModal() { document.getElementById('msg-modal').style.display='none'; }
+
+document.getElementById('msg-delete-btn').addEventListener('click', async () => {
+  if (!confirm('Delete this message?')) return;
+  await fetch('/api/contact/messages/' + currentMsgId, {method:'DELETE'});
+  closeMsgModal();
+  loadMessages();
+});
+
+load();
+loadMessages();
+</script>
+{% endblock %}

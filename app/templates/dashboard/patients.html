@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Patients{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Patients</h1>
+  <button class="btn btn-primary" onclick="showForm()">+ Add patient</button>
+</div>
+
+<div id="form-box" class="card" style="display:none;margin-bottom:16px;border-left:3px solid var(--primary)">
+  <div style="font-size:14px;font-weight:500;margin-bottom:16px;color:var(--primary-dark)">Register new patient</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div>
+      <label>Full name</label>
+      <input id="f-name" placeholder="e.g. Ahmad Khalil">
+    </div>
+    <div>
+      <label>Room</label>
+      <input id="f-room" placeholder="e.g. Room 3">
+    </div>
+    <div>
+      <label>Bed (optional)</label>
+      <input id="f-bed" placeholder="e.g. Bed A">
+    </div>
+    <div>
+      <label>Notes (optional)</label>
+      <input id="f-notes" placeholder="Allergies, special instructions...">
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="addPatient()">Save patient</button>
+    <button class="btn" onclick="document.getElementById('form-box').style.display='none'">Cancel</button>
+  </div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Room</th>
+        <th>Bed</th>
+        <th>Notes</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="pt-tbody">
+      <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function showForm() { document.getElementById('form-box').style.display='block'; window.scrollTo(0,0); }
+
+async function load() {
+  const patients = await api('GET', '/patients/?all=true');
+  document.getElementById('pt-tbody').innerHTML = patients.length ? patients.map(p => `
+    <tr>
+      <td style="font-weight:500">${p.name}</td>
+      <td>${p.room}</td>
+      <td>${p.bed||'—'}</td>
+      <td style="color:var(--text-muted);font-size:12px">${p.notes||'—'}</td>
+      <td><span class="badge badge-${p.is_active?'teal':'gray'}">${p.is_active?'Active':'Discharged'}</span></td>
+      <td>
+        ${p.is_active ? `<button class="btn btn-sm btn-danger" onclick="discharge(${p.id},'${p.name}')">Discharge</button>` : ''}
+      </td>
+    </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px">No patients registered yet</td></tr>';
+}
+
+async function addPatient() {
+  const name = document.getElementById('f-name').value.trim();
+  const room = document.getElementById('f-room').value.trim();
+  if (!name||!room) { alert('Name and room are required'); return; }
+  await api('POST', '/patients/', { name, room, bed: document.getElementById('f-bed').value.trim(), notes: document.getElementById('f-notes').value.trim() });
+  document.getElementById('form-box').style.display='none';
+  ['f-name','f-room','f-bed','f-notes'].forEach(id => document.getElementById(id).value='');
+  load();
+}
+
+async function discharge(id, name) {
+  if (!confirm(`Discharge ${name}? This will cancel all their pending schedules.`)) return;
+  await api('POST', `/patients/${id}/discharge`);
+  load();
+}
+
+load();
+</script>
+{% endblock %}
