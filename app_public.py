@@ -72,22 +72,35 @@ def _seed(app):
     from app.models.user import User
 
     with app.app_context():
+        # Create all tables first
         db.create_all()
 
-        if not db.session.get(RobotState, 1):
-            db.session.add(RobotState(id=1))
+        # Small delay to ensure tables are ready
+        import time
+        time.sleep(1)
+
+        try:
+            if not db.session.get(RobotState, 1):
+                db.session.add(RobotState(id=1))
+                db.session.commit()
+
+            for tube_id in [1, 2, 3, 4]:
+                if not db.session.get(Tube, tube_id):
+                    db.session.add(Tube(id=tube_id))
+
+            if not User.query.filter_by(role="admin").first():
+                admin = User(
+                    username="admin",
+                    full_name="Administrator",
+                    role="admin"
+                )
+                admin.set_password("apollo2024")
+                db.session.add(admin)
+
             db.session.commit()
-
-        for tube_id in [1, 2, 3, 4]:
-            if not db.session.get(Tube, tube_id):
-                db.session.add(Tube(id=tube_id))
-
-        if not User.query.filter_by(role="admin").first():
-            admin = User(username="admin", full_name="Administrator", role="admin")
-            admin.set_password("apollo2024")
-            db.session.add(admin)
-
-        db.session.commit()
+        except Exception as e:
+            print(f"Seed error (non-fatal): {e}")
+            db.session.rollback()
 
 
 app = create_app()
