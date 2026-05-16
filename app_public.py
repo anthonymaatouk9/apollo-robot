@@ -26,7 +26,11 @@ migrate       = Migrate()
 login_manager = LoginManager()
 
 def create_app():
-    app = Flask(__name__)
+    import os
+    app = Flask(__name__,
+        template_folder=os.path.join(os.path.dirname(__file__), 'app', 'templates'),
+        static_folder=os.path.join(os.path.dirname(__file__), 'app', 'static')
+    )
     app.config.from_object(ProductionConfig)
 
     db.init_app(app)
