@@ -62,31 +62,32 @@ def create_app():
     app.register_blueprint(auth_bp,    url_prefix="/")
     app.register_blueprint(admin_bp,   url_prefix="/admin")
 
-    with app.app_context():
-        db.create_all()
-        _seed()
+    _seed(app)
 
     return app
 
 
-def _seed():
+def _seed(app):
     from app.models import RobotState, Tube
     from app.models.user import User
 
-    if not RobotState.query.get(1):
-        db.session.add(RobotState(id=1))
+    with app.app_context():
+        db.create_all()
+
+        if not db.session.get(RobotState, 1):
+            db.session.add(RobotState(id=1))
+            db.session.commit()
+
+        for tube_id in [1, 2, 3, 4]:
+            if not db.session.get(Tube, tube_id):
+                db.session.add(Tube(id=tube_id))
+
+        if not User.query.filter_by(role="admin").first():
+            admin = User(username="admin", full_name="Administrator", role="admin")
+            admin.set_password("apollo2024")
+            db.session.add(admin)
+
         db.session.commit()
-
-    for tube_id in [1, 2, 3, 4]:
-        if not Tube.query.get(tube_id):
-            db.session.add(Tube(id=tube_id))
-
-    if not User.query.filter_by(role="admin").first():
-        admin = User(username="admin", full_name="Administrator", role="admin")
-        admin.set_password("apollo2024")
-        db.session.add(admin)
-
-    db.session.commit()
 
 
 app = create_app()
