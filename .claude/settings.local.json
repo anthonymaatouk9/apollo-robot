@@ -14,7 +14,13 @@
       "Bash(git push *)",
       "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ali.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\ali.jpeg\")",
       "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\anthony.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\anthony.jpeg\")",
-      "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\chris.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\chris.jpeg\")"
+      "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\chris.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\chris.jpeg\")",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\tubes.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_tubes.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\qrcode.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_qr.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\mission.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_mission.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\lidar_.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_lidar.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ai.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_ai.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\lidar .png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_lidar.png\" -Force)"
     ]
   }
 }

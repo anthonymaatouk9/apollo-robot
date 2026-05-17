@@ -45,8 +45,10 @@ nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,0.08)}
 @keyframes heroFloat{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 18px))}}
 .hero-robot img{width:100%;filter:drop-shadow(0 40px 80px rgba(29,177,184,.35))}
 .hero-stats{display:flex;gap:36px;margin-top:56px;flex-wrap:wrap;animation:fadeUp .8s .4s ease both}
-.hstat .num{font-size:30px;font-weight:500;color:var(--p)}
-.hstat .lbl{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
+.hstat{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.hstat-icon{width:36px;height:36px;object-fit:contain;filter:brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(150deg);margin-bottom:4px}
+.hstat .num{font-size:26px;font-weight:500;color:var(--p);line-height:1}
+.hstat .lbl{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
 .scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.3);font-size:11px;animation:bounce 2s ease-in-out infinite}
 @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 .scroll-hint svg{width:16px;height:16px;fill:currentColor}
@@ -235,10 +237,31 @@ footer{background:var(--dark);padding:48px 6% 32px}
       <a href="#how" class="btn-o">How it works</a>
     </div>
     <div class="hero-stats">
-      <div class="hstat"><div class="num">4</div><div class="lbl">Medication tubes</div></div>
-      <div class="hstat"><div class="num">QR</div><div class="lbl">Patient ID</div></div>
-      <div class="hstat"><div class="num">AI</div><div class="lbl">Intake verification</div></div>
-      <div class="hstat"><div class="num">8</div><div class="lbl">Mission phases</div></div>
+      <div class="hstat">
+        <img src="/static/images/icon_tubes.png" class="hstat-icon" alt="tubes">
+        <div class="num">4</div>
+        <div class="lbl">Medication tubes</div>
+      </div>
+      <div class="hstat">
+        <img src="/static/images/icon_qr.png" class="hstat-icon" alt="qr">
+        <div class="num">QR</div>
+        <div class="lbl">Patient ID</div>
+      </div>
+      <div class="hstat">
+        <img src="/static/images/icon_ai.png" class="hstat-icon" alt="ai">
+        <div class="num">AI</div>
+        <div class="lbl">Intake verification</div>
+      </div>
+      <div class="hstat">
+        <img src="/static/images/icon_mission.png" class="hstat-icon" alt="mission">
+        <div class="num">8</div>
+        <div class="lbl">Mission phases</div>
+      </div>
+      <div class="hstat">
+        <img src="/static/images/icon_lidar.png" class="hstat-icon" alt="lidar">
+        <div class="num">360°</div>
+        <div class="lbl">Navigation</div>
+      </div>
     </div>
   </div>
   <div class="hero-robot">
