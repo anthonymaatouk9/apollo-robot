@@ -111,15 +111,22 @@ section{padding:96px 6%}
 .tech-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px}
 
 /* TEAM */
-.team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:56px}
-.member{background:var(--white);border-radius:12px;border:0.5px solid var(--border);overflow:hidden;text-align:center;transition:transform .2s,border-color .2s,box-shadow .2s}
-.member:hover{transform:translateY(-5px);border-color:var(--p);box-shadow:0 12px 40px rgba(29,177,184,.12)}
-.member-photo{width:100%;height:280px;object-fit:cover;object-position:top center;display:block;filter:grayscale(20%)}
-.member-info{padding:20px 20px 24px}
-.avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pd));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:white;margin:0 auto 16px;box-shadow:0 8px 24px rgba(29,177,184,.3)}
-.member h3{font-size:16px;font-weight:500;margin-bottom:6px}
-.member .major{font-size:12px;font-weight:500;color:var(--p);margin-bottom:12px;padding:3px 10px;background:var(--pl);border-radius:99px;display:inline-block}
-.member .bio{font-size:13px;color:var(--muted);line-height:1.65}
+.team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:56px;max-width:1100px;margin-left:auto;margin-right:auto}
+.member{border-radius:12px;border:0.5px solid var(--border);overflow:hidden;text-align:center;transition:transform .2s,border-color .2s,box-shadow .2s;background:var(--white)}
+.member:hover{transform:translateY(-6px);border-color:var(--p);box-shadow:0 20px 60px rgba(29,177,184,.2)}
+.member-card-inner{position:relative;overflow:hidden;height:380px}
+.member-photo{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;transition:transform .5s ease;background:#0a1628}
+.member:hover .member-photo{transform:scale(1.05)}
+.member-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,87,127,.95) 0%,rgba(0,87,127,.7) 50%,transparent 100%);opacity:0;transition:opacity .4s ease;display:flex;align-items:flex-end;padding:24px}
+.member:hover .member-overlay{opacity:1}
+.member-overlay-content{transform:translateY(20px);transition:transform .4s ease;width:100%}
+.member:hover .member-overlay-content{transform:translateY(0)}
+.member-overlay-content h3{font-size:18px;font-weight:500;color:white;margin-bottom:4px}
+.member-overlay-content .major{font-size:11px;font-weight:500;color:var(--p);background:rgba(29,177,184,.2);border:0.5px solid rgba(29,177,184,.4);padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:10px}
+.member-overlay-content .bio{font-size:12px;color:rgba(255,255,255,.85);line-height:1.6}
+.member-info{padding:16px 20px 20px;text-align:center}
+.member-info h3{font-size:15px;font-weight:500;color:var(--text);margin-bottom:4px}
+.member-info .major{font-size:11px;font-weight:500;color:var(--p);background:var(--pl);padding:3px 10px;border-radius:99px;display:inline-block}
 
 /* FAQ */
 .faq-list{display:flex;flex-direction:column;gap:8px;margin-top:48px;max-width:760px;margin-left:auto;margin-right:auto}
@@ -370,27 +377,51 @@ footer{background:var(--dark);padding:48px 6% 32px}
   </div>
   <div class="team-grid fade-up">
     <div class="member">
-      <img class="member-photo" src="/static/images/anthony.jpeg" alt="Anthony Maatouk">
+      <div class="member-card-inner">
+        <img class="member-photo" src="/static/images/anthony.jpeg" alt="Anthony Maatouk">
+        <div class="member-overlay">
+          <div class="member-overlay-content">
+            <h3>Anthony Maatouk</h3>
+            <div class="major">Computer & Communications Engineering</div>
+            <p class="bio">Built the full software stack — Flask backend, PostgreSQL database, AI verification pipeline, live camera streaming, nurse dashboard, QR patient identification, and Arduino serial communication.</p>
+          </div>
+        </div>
+      </div>
       <div class="member-info">
         <h3>Anthony Maatouk</h3>
         <div class="major">Computer & Communications Engineering</div>
-        <p class="bio">Built the full software stack — Flask backend, PostgreSQL database, AI verification pipeline, live camera streaming, nurse dashboard, QR patient identification, and Arduino serial communication.</p>
       </div>
     </div>
     <div class="member">
-      <img class="member-photo" src="/static/images/chris.jpeg" alt="Chris Lian">
-      <div class="member-info">
-        <h3>Chris Lian</h3>
-        <div class="major">Mechatronics Engineering</div>
-        <p class="bio">Hardware design and motor control systems. Responsible for the mechanical integration of the pill dispensing mechanism, water delivery system, and physical robot assembly.</p>
+      <div class="member-card-inner">
+        <img class="member-photo" src="/static/images/ali.jpeg" alt="Ali Awwad">
+        <div class="member-overlay">
+          <div class="member-overlay-content">
+            <h3>Ali Awwad</h3>
+            <div class="major">Mechatronics Engineering</div>
+            <p class="bio">Robot chassis design, sensor integration, and electronic wiring. Designed the physical platform and integrated all hardware subsystems including motors, encoders, and sensors.</p>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="member">
-      <img class="member-photo" src="/static/images/ali.jpeg" alt="Ali Awwad">
       <div class="member-info">
         <h3>Ali Awwad</h3>
         <div class="major">Mechatronics Engineering</div>
-        <p class="bio">Robot chassis design, sensor integration, and electronic wiring. Designed the physical platform and integrated all hardware subsystems including motors, encoders, and sensors.</p>
+      </div>
+    </div>
+    <div class="member">
+      <div class="member-card-inner">
+        <img class="member-photo" src="/static/images/chris.jpeg" alt="Chris Lian">
+        <div class="member-overlay">
+          <div class="member-overlay-content">
+            <h3>Chris Lian</h3>
+            <div class="major">Mechatronics Engineering</div>
+            <p class="bio">Hardware design and motor control systems. Responsible for the mechanical integration of the pill dispensing mechanism, water delivery system, and physical robot assembly.</p>
+          </div>
+        </div>
+      </div>
+      <div class="member-info">
+        <h3>Chris Lian</h3>
+        <div class="major">Mechatronics Engineering</div>
       </div>
     </div>
   </div>
