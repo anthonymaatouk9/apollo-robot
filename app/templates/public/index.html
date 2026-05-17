@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Apollo — Autonomous Medical Pill Delivery Robot</title>
+<link rel="icon" type="image/png" href="/static/images/apollo_logo.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--p:#1DB1B8;--pd:#00597F;--pl:#E8F7F8;--dark:#0A1628;--dark2:#0D1F35;--white:#fff;--text:#0D2B3E;--muted:#5A7A8A;--border:#D0E8EE;--bg:#F0F7F9}
@@ -109,6 +110,8 @@ section{padding:96px 6%}
 .tech-card{background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.08);border-radius:10px;padding:18px 12px;text-align:center;transition:all .2s;cursor:default}
 .tech-card:hover{background:rgba(29,177,184,.1);border-color:rgba(29,177,184,.3);transform:translateY(-3px)}
 .tech-icon{font-size:26px;margin-bottom:8px}
+.tech-icon-img{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.tech-icon-img img{width:100%;height:100%;object-fit:contain;filter:brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(150deg)}
 .tech-name{font-size:13px;font-weight:500;color:white}
 .tech-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px}
 
@@ -324,7 +327,7 @@ footer{background:var(--dark);padding:48px 6% 32px}
     <div class="sec-sub">Built for real hospital environments with safety, accuracy, and reliability at every step.</div>
   </div>
   <div class="features-grid fade-up">
-    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><h3>Autonomous navigation</h3><p>Fixed coordinate navigation with ultrasonic obstacle detection. Stops if path blocked, resumes automatically when clear.</p></div>
+    <div class="feat"><div class="feat-icon"><img src="/static/images/icon_lidar.png" style="width:22px;height:22px;object-fit:contain;filter:brightness(0) saturate(100%) invert(29%) sepia(61%) saturate(500%) hue-rotate(160deg)"></div><h3>Autonomous navigation</h3><p>LiDAR-based navigation with real-time obstacle detection and avoidance. Robot maps its environment and stops instantly if the path is blocked, resuming automatically when clear.</p></div>
     <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-6 8h1.5v1.5H13V13zm1.5 1.5H16V16h-1.5v-1.5zM16 13h1.5v1.5H16V13zm-3 3h1.5v1.5H13V16zm1.5 1.5H16V19h-1.5v-1.5zM16 16h1.5v1.5H16V16zm1.5-1.5H19V16h-1.5v-1.5zm0 3H19V19h-1.5v-1.5z"/></svg></div><h3>QR patient verification</h3><p>Every delivery verified by live QR code scan. Wrong patient or wrong room — mission immediately aborted and nurse alerted.</p></div>
     <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3z"/></svg></div><h3>4-tube dispensing</h3><p>Stepper motor selects correct tube. Servo drops exactly one pill. IR sensor confirms drop before proceeding.</p></div>
     <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div><h3>Automatic water & cup</h3><p>Cup automatically dispensed and filled with controlled water amount — measured by flow sensor for precision.</p></div>
@@ -380,14 +383,42 @@ footer{background:var(--dark);padding:48px 6% 32px}
     <div class="sec-sub" style="color:rgba(255,255,255,.45)">A carefully chosen stack balancing performance, reliability, and embedded hardware constraints.</div>
   </div>
   <div class="tech-grid fade-up">
-    <div class="tech-card"><div class="tech-icon">🍓</div><div class="tech-name">Raspberry Pi 4</div><div class="tech-role">Main controller</div></div>
-    <div class="tech-card"><div class="tech-icon">⚡</div><div class="tech-name">Arduino Mega</div><div class="tech-role">Hardware control</div></div>
-    <div class="tech-card"><div class="tech-icon">🐍</div><div class="tech-name">Python 3</div><div class="tech-role">Core language</div></div>
-    <div class="tech-card"><div class="tech-icon">⚗️</div><div class="tech-name">Flask</div><div class="tech-role">Web backend</div></div>
-    <div class="tech-card"><div class="tech-icon">🗄️</div><div class="tech-name">PostgreSQL</div><div class="tech-role">Database</div></div>
-    <div class="tech-card"><div class="tech-icon">👁️</div><div class="tech-name">YOLOv8</div><div class="tech-role">Object detection</div></div>
-    <div class="tech-card"><div class="tech-icon">✋</div><div class="tech-name">MediaPipe</div><div class="tech-role">Hand tracking</div></div>
-    <div class="tech-card"><div class="tech-icon">📷</div><div class="tech-name">OpenCV</div><div class="tech-role">Computer vision</div></div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_raspberry.png" alt="Raspberry Pi"></div>
+      <div class="tech-name">Raspberry Pi 4</div><div class="tech-role">Main controller</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_arduino.png" alt="Arduino"></div>
+      <div class="tech-name">Arduino Mega</div><div class="tech-role">Hardware control</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_python.png" alt="Python"></div>
+      <div class="tech-name">Python 3</div><div class="tech-role">Core language</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_flask.png" alt="Flask"></div>
+      <div class="tech-name">Flask</div><div class="tech-role">Web backend</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_postgresql.png" alt="PostgreSQL"></div>
+      <div class="tech-name">PostgreSQL</div><div class="tech-role">Database</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_yolov8.png" alt="YOLOv8"></div>
+      <div class="tech-name">YOLOv8</div><div class="tech-role">Object detection</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_mediapipe.png" alt="MediaPipe"></div>
+      <div class="tech-name">MediaPipe</div><div class="tech-role">Hand tracking</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_opencv.png" alt="OpenCV"></div>
+      <div class="tech-name">OpenCV</div><div class="tech-role">Computer vision</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon-img"><img src="/static/images/icon_ros2.png" alt="ROS2"></div>
+      <div class="tech-name">ROS2</div><div class="tech-role">Navigation</div>
+    </div>
   </div>
 </section>
 

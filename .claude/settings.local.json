@@ -20,7 +20,9 @@
       "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\mission.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_mission.png\" -Force)",
       "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\lidar_.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_lidar.png\" -Force)",
       "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ai.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_ai.png\" -Force)",
-      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\lidar .png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_lidar.png\" -Force)"
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\lidar .png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_lidar.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\raspberry pi.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_raspberry.png\" -Force)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\arduino.png\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\icon_arduino.png\" -Force)"
     ]
   }
 }
