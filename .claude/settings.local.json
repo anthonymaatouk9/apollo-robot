@@ -8,7 +8,13 @@
       "PowerShell(Copy-Item -Path \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\tm8s.jpeg\" -Destination \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team.jpeg\" -Force)",
       "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\anthony ma3.png\"  \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_anthony.png\" -Force)",
       "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\kis lian.png\"      \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_chris.png\"   -Force)",
-      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ali awwad.png\"     \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_ali.png\"     -Force)"
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ali awwad.png\"     \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\team_ali.png\"     -Force)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\ali.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\ali.jpeg\")",
+      "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\anthony.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\anthony.jpeg\")",
+      "Bash(copy \"C:\\\\Users\\\\USER\\\\Documents\\\\apollo video and pic\\\\chris.jpeg\" \"C:\\\\Users\\\\USER\\\\Documents\\\\APOLLO\\\\app\\\\static\\\\images\\\\chris.jpeg\")"
     ]
   }
 }
