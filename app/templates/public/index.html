@@ -114,9 +114,9 @@ section{padding:96px 6%}
 .team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:56px}
 .member{background:var(--white);border-radius:12px;border:0.5px solid var(--border);overflow:hidden;text-align:center;transition:transform .2s,border-color .2s,box-shadow .2s}
 .member:hover{transform:translateY(-5px);border-color:var(--p);box-shadow:0 12px 40px rgba(29,177,184,.12)}
-.member-photo{width:100%;height:320px;overflow:hidden;background-color:#f7fbfc}
-.member-photo img{width:100%;height:100%;object-fit:cover;object-position:top}
-.member-info{padding:20px 22px 26px}
+.member-photo{width:100%;height:280px;object-fit:cover;object-position:top center;display:block;filter:grayscale(20%)}
+.member-info{padding:20px 20px 24px}
+.avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pd));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:white;margin:0 auto 16px;box-shadow:0 8px 24px rgba(29,177,184,.3)}
 .member h3{font-size:16px;font-weight:500;margin-bottom:6px}
 .member .major{font-size:12px;font-weight:500;color:var(--p);margin-bottom:12px;padding:3px 10px;background:var(--pl);border-radius:99px;display:inline-block}
 .member .bio{font-size:13px;color:var(--muted);line-height:1.65}
@@ -370,7 +370,7 @@ footer{background:var(--dark);padding:48px 6% 32px}
   </div>
   <div class="team-grid fade-up">
     <div class="member">
-      <div class="member-photo"><img src="/static/images/anthony.jpeg" alt="Anthony Maatouk"></div>
+      <img class="member-photo" src="/static/images/anthony.jpeg" alt="Anthony Maatouk">
       <div class="member-info">
         <h3>Anthony Maatouk</h3>
         <div class="major">Computer & Communications Engineering</div>
@@ -378,7 +378,7 @@ footer{background:var(--dark);padding:48px 6% 32px}
       </div>
     </div>
     <div class="member">
-      <div class="member-photo"><img src="/static/images/chris.jpeg" alt="Chris Lian"></div>
+      <img class="member-photo" src="/static/images/chris.jpeg" alt="Chris Lian">
       <div class="member-info">
         <h3>Chris Lian</h3>
         <div class="major">Mechatronics Engineering</div>
@@ -386,7 +386,7 @@ footer{background:var(--dark);padding:48px 6% 32px}
       </div>
     </div>
     <div class="member">
-      <div class="member-photo"><img src="/static/images/ali.jpeg" alt="Ali Awwad"></div>
+      <img class="member-photo" src="/static/images/ali.jpeg" alt="Ali Awwad">
       <div class="member-info">
         <h3>Ali Awwad</h3>
         <div class="major">Mechatronics Engineering</div>
