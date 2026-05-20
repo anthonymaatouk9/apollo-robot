@@ -194,15 +194,74 @@ footer{background:var(--dark);padding:48px 6% 32px}
 .vmodal-close svg{width:16px;height:16px;fill:white}
 
 @media(max-width:900px){
-  .hero-robot{display:none}
-  .demo-card.featured{grid-column:span 1}
-  .demo-grid{grid-template-columns:1fr}
-  .showcase-grid{grid-template-columns:1fr}
-  .team-grid{grid-template-columns:1fr}
-  .contact-wrap{grid-template-columns:1fr}
-  .footer-top{grid-template-columns:1fr}
+  /* NAV */
   .nlinks{display:none}
+  .nbtn{padding:5px 12px;font-size:12px}
+
+  /* HERO */
+  .hero{padding:80px 5% 40px;min-height:auto}
+  .hero-robot{display:none}
+  .hero h1{font-size:32px}
+  .hero p{font-size:15px}
+  .hero-stats{gap:18px;margin-top:32px}
+  .hstat .num{font-size:20px}
+  .hstat-icon{width:26px;height:26px}
+
+  /* DEMO */
+  .demo-grid{grid-template-columns:1fr}
+  .demo-card.featured{grid-column:span 1}
+
+  /* HOW IT WORKS */
+  .steps{grid-template-columns:1fr 1fr;gap:10px}
   .steps::before{display:none}
+  .step{margin:0}
+
+  /* FEATURES */
+  .features-grid{grid-template-columns:1fr}
+
+  /* SHOWCASE */
+  .showcase-grid{grid-template-columns:1fr}
+  .showcase-img{order:1}
+  .showcase-text{order:2}
+
+  /* TECH STACK */
+  .tech-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .tech-card{padding:12px 6px}
+  .tech-name{font-size:11px}
+  .tech-role{font-size:10px}
+  .tech-icon-img{width:32px;height:32px}
+
+  /* TEAM */
+  .team-grid{grid-template-columns:1fr}
+  .member-card-inner{height:260px}
+
+  /* CONTACT */
+  .contact-wrap{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-group.full{grid-column:span 1}
+
+  /* FOOTER */
+  .footer-top{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:6px;text-align:center}
+
+  /* SECTIONS */
+  section{padding:60px 5%}
+  .sec-title{font-size:26px}
+  .sec-sub{font-size:14px}
+}
+
+@media(max-width:480px){
+  /* EXTRA SMALL PHONES */
+  .hero h1{font-size:26px}
+  .steps{grid-template-columns:1fr}
+  .tech-grid{grid-template-columns:repeat(3,1fr)}
+  .hero-stats{gap:12px}
+  .hstat .num{font-size:18px}
+  .hstat .lbl{font-size:10px}
+  .hero-badge{font-size:11px}
+  .btn-p,.btn-o{padding:10px 18px;font-size:13px}
+  .demo-section{padding:50px 5%}
+  .tech-name{font-size:10px}
 }
 </style>
 </head>
